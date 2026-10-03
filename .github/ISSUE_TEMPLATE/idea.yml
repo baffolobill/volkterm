@@ -1,0 +1,11 @@
+name: Idea
+description: Something VolkTerm could do
+labels: [idea]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What you would like
+      description: What you want to do, and what gets in the way today.
+    validations:
+      required: true
