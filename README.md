@@ -142,6 +142,8 @@ own layout, show you a report in an overlay or ask you a question in a dialog.
 
 - [Command reference](docs/commands.md): every `volktermctl` command, its arguments and what it reads back.
 - [FAQ](docs/faq.md): windows, restarts and Live sessions, updates, agents, the phone app, the license.
+- [Troubleshooting](docs/troubleshooting.md): where logs and config live, and the common problems.
+- [Cookbook](cookbook/): complete workflows built on `volktermctl`, each a directory with a README and its scripts.
 
 ## Issues
 

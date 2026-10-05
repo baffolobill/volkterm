@@ -1,5 +1,8 @@
 # VolkTerm FAQ
 
+Answers the owner wants on the website. Source material, not yet published; each answer was checked against the
+code and `site/docs.html` on 2026-10-02.
+
 ## Windows
 
 **Can I keep several windows open, and do they come back on the same monitors?**
@@ -89,11 +92,22 @@ command line stay English.
 
 **What does a license add?**
 VolkTerm works without one. A license adds what saves time when several agents and subscriptions are at work:
-agents that continue by themselves after a lost connection or a spent limit, Continue as, side agents that answer
-questions about a file, and every session on the phone instead of the top one and those the phone opened. Without a
-license those items stay in the menus and say so when used. Enter a key in VolkTerm ▸ License….
+more than 6 sessions open at once, agents that continue by themselves after a lost connection or a spent limit,
+Continue as, side agents that answer questions about a file, and every session on the phone instead of the top one and
+those the phone opened. Without a license those items stay in the menus and say so when used. Enter a key in
+VolkTerm ▸ License….
+
+**What happens to my sessions when a license ends?**
+Nothing closes. Sessions over 6 stay open and keep running; a new one opens once you are under 6 again. The
+new-workspace wizard offers only as many terminals as can still open.
 
 ## Phone app
+
+**Can I start a message on the phone and finish it on the Mac?**
+Yes. What you type in a chat is kept with the session on the Mac as you type. The tile on the Mac then shows a pencil
+in its header; Insert types the text into the agent's prompt without sending it, so you finish it there. It works
+the other way between phones and iPads too, and a message sent from anywhere clears the draft everywhere. Text typed
+straight into the Mac's terminal is not seen by the phone until it is sent.
 
 **Can the phone work with several Macs?**
 Yes. Scan each Mac's code (VolkTerm ▸ Pair Phone…); they all stay connected at once, and the title of the session
@@ -101,9 +115,20 @@ list picks which one you see. Notifications come from every connected Mac, named
 be disconnected, renamed or removed. A Mac with several windows shows its sessions under each window.
 
 **Can I see my subscription limits and notifications on the phone?**
-Yes. When a subscription's 5-hour or weekly window passes 80%, a line above the session list says so; tap it for
-every subscription's usage and when each window resets. The bell lists what the Mac notified, and a new notification
+Yes. When a subscription's 5-hour or weekly window passes 80%, a line above the session list says so; tap it, or the
+gauge at the top, for every subscription's usage, when each window resets and the sessions running as it. The bell lists what the Mac notified, and a new notification
 shows over whatever screen is open; tap it to open its session.
+
+**Can I switch a session to another subscription from the phone?**
+Yes. Press and hold the session in the list and pick Continue as and the agent command; the conversation goes on
+under it, as from the Mac's menu. The same menu splits the session or closes its split.
+
+**Can I send the agent a picture or a file from the phone?**
+Yes. The + beside the message field picks a photo, a copied image or a file (and holds the common slash commands);
+it goes to the Mac and its path lands in the message, for the agent to read. Photos are scaled down to 2048 pixels; files stop at 20 MB.
+
+**Where is voice input on the phone?**
+In the send button: hold it to talk, tap to stop. With nothing typed a tap talks too.
 
 **How do I open a file on the phone?**
 Files the agent opened with `preview` or `edit` appear as buttons above the chat; tap one to read or edit it. A file
