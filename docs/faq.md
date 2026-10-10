@@ -1,8 +1,5 @@
 # VolkTerm FAQ
 
-Answers the owner wants on the website. Source material, not yet published; each answer was checked against the
-code and `site/docs.html` on 2026-10-02.
-
 ## Windows
 
 **Can I keep several windows open, and do they come back on the same monitors?**
@@ -15,6 +12,11 @@ windows open at quit reopen. A window whose monitor is gone is moved by macOS on
 No. Download the `.dmg` from the releases page and drag VolkTerm into Applications. Updates then install from inside
 the app: the arrow in the title bar or VolkTerm ▸ Check for Updates… downloads the new version, checks it is signed by
 the same developer as the copy you run, replaces it and offers to restart. With Homebrew the same button runs brew.
+
+**What if an update breaks something?**
+The first launch of a new version keeps your windows, sessions, settings and config as the old version left them, in a
+checkpoint named after both versions; File ▸ Checkpoints ▸ Checkpoints… restores it. The last three are kept. An update
+that changes things you may notice says so before it installs and opens with its release notes.
 
 **How do I update Claude Code or Codex?**
 VolkTerm ▸ Update Claude Code… or Update Codex…. VolkTerm updates each the way it was installed, Homebrew, Claude's
@@ -105,7 +107,9 @@ new-workspace wizard offers only as many terminals as can still open.
 
 **Can I start a message on the phone and finish it on the Mac?**
 Yes. What you type in a chat is kept with the session on the Mac as you type. The tile on the Mac then shows a pencil
-in its header; Insert types the text into the agent's prompt without sending it, so you finish it there. It works
+in its header; Insert types the text into the agent's prompt without sending it, so you finish it there. Under
+Claude Code it goes in by itself once you leave the chat on the phone, or stop typing for 15 seconds, while Claude
+waits with an empty prompt and asks nothing. It works
 the other way between phones and iPads too, and a message sent from anywhere clears the draft everywhere. Text typed
 straight into the Mac's terminal is not seen by the phone until it is sent.
 

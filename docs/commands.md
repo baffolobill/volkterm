@@ -287,8 +287,8 @@ that exact pane), `dashboardFontSize` (the absolute font size in points applied 
 the mode is `untouched`), and `dashboardFontMode` (`auto` for `--auto-size`, `fixed` for `--font-size`, or
 `untouched`), plus `limits` (each subscription's usage as Claude Code's status line last reported it:
 `account` — the agent command's name; an agent started by hand takes the name of the one command that is the bare `claude`, else `claude` — and `fiveHour` / `sevenDay`
-with `percent` and `resetsAt` in Unix seconds; a window drops out once it starts over, the field once none
-is left; app-wide), `pickPending` (the id of the native picker currently awaiting an answer in this
+with `percent` and `resetsAt` in Unix seconds, and `sessions`, how many open sessions run as it, across
+windows; a window drops out once it starts over, a row once it has no window and no session; app-wide), `pickPending` (the id of the native picker currently awaiting an answer in this
 window, omitted when none is pending), `askPending` (the pending GUI question's id, omitted when absent),
 and `app` (which volkterm is serving this socket: `version`, plus
 `commit` when the build recorded one — the same value `volktermctl version` returns, so an agent already
@@ -406,6 +406,8 @@ buys nothing. A caller with no tree uses `version`.
   its screen; this opens a new session in a tile beside the target's, right after it in the sidebar, selected;
   returns the new id. Read the layout as the workspace node's `tiles` (`{"session": ID}` leaves,
   `{"axis","ratio","first","second"}` splits, `vertical` = side by side).
+- `tile even columns|rows [--target S] [--window W]` — make the workspace's columns equal width, or its rows equal
+  height, leaving the other axis; read back in `tiles` ratios.
 - `tile move --to S [--edge left|right|up|down|swap] [--target S] [--window W]` — put the target's tile beside the
   `--to` tile in the same workspace (default `right`) or swap the two, as dragging a tile header does. A workspace's
   sessions are listed in screen order (left to right, top to bottom); `session move` within a workspace moves tiles.
@@ -425,7 +427,8 @@ buys nothing. A caller with no tree uses `version`.
 
 - `checkpoint save [NAME] | list | restore ID --force [--with-settings] | delete ID | export ID FILE.zip [--with-agents] | import FILE.zip`
   — snapshots of every window/workspace/session (with running agents captured) plus settings and config;
-  auto-saved hourly and at quit. `restore` quits and relaunches volkterm (current state saved as "Before
+  auto-saved hourly and at quit, and as kind `beforeUpdate` (the files a previous version left, byte for byte) on a
+  new version's first launch. `restore` quits and relaunches volkterm (current state saved as "Before
   restore" first). Export/import move them between Macs as zip files; `--with-agents` also packs the Claude Code and
   Codex conversations its panes resume.
 - `update` — check GitHub for a newer volkterm; returns `result.update` (`current`, `latest`, `available`,
@@ -435,7 +438,9 @@ buys nothing. A caller with no tree uses `version`.
 ## session
 
 - `session new [--cwd DIR] [--workspace W] [--workspace-name NAME] [--create-workspace] [--command CMD] [--wait] [--name NAME] [--after SID | --before SID] [--no-select] [--window W]`
-  — create a session and focus it; returns the new id. `--cwd` sets the start directory (default
+  — create a session and focus it; returns the new id. Without a license at most 6 sessions are open at once
+  across windows: past that this and every other create (`session duplicate`, `workspace duplicate`,
+  `window new`) fails with "6 sessions are open…"; close one rather than retry. `--cwd` sets the start directory (default
   `$HOME`). The destination workspace is addressed one of two mutually-exclusive ways: `--workspace`
   (id / unique prefix / `active`, the default) or `--workspace-name` (the sidebar label) — the latter
   errors if no workspace has that name unless `--create-workspace` is also passed, which reuses an
@@ -527,6 +532,13 @@ Shared pane selectors accept `primary`/`left`/`top` for the primary pane and
 The signatures and read-back below use canonical `left`/`right`/`scratch`; the stable invalid-value
 error keeps those names for compatibility.
 
+- `session send <text> [--pane left|right] [--target] [--window W]` — send a message to the pane's agent: the
+  text and its own Return as one step (several lines go as one paste and stay lines), queued per pane across callers, refused (`the agent is asking a question`)
+  while a question with options is on screen. Prefer it over `session type` + `\r` for messages.
+- `session draft (<text> [--from NAME] | --clear) [--target] [--window W]` — leave an unsent message with the
+  session for another device to finish (read back as the node's `draft`: `text`, `from`, `updatedAt`); the tile
+  header offers Insert and Discard, and `session send` clears it. Under Claude Code it inserts itself once the phone
+  left the chat or the draft is 15 s old, while Claude waits with an empty prompt and asks nothing.
 - `session type <text> [--stdin] [--select] [--pane left|right|scratch] [--target] [--window W]` — inject text
   as real keystrokes (printable runs plus Return for each newline; no bracketed-paste markers).
   `--stdin` reads the text from stdin instead of the argument. Any session is typable without `--select`,
@@ -695,8 +707,11 @@ error keeps those names for compatibility.
   installed status line (`volktermctl claude-statusline`) sets it, taking the account from `VOLKTERM_LAUNCHER`, which
   an agent command from Settings ▸ Agents is typed with; an idle status clears it. Read back `agent` (`model`,
   `contextPercent`, `account`) on the session node; not persisted.
-- `session launch <name> [--prompt TEXT] [--target] [--window W]` — type one of the user's agent commands (Settings ▸ Agents,
-  listed by `agent list`) into the session's focused pane, with Return.
+- `session launch <name> [--prompt TEXT] [--input LABEL=VALUE …] [--target] [--window W]` — run one of the user's agent
+  commands (Settings ▸ Agents, listed by `agent list` with their `prompt` and `shortcut`): its line and Return into the
+  focused pane, or a new tile beside it when an agent already runs there; a command with no command line sends its
+  prompt to the running agent (refused while it asks a question). `--input` answers its `{ask:LABEL}` fields
+  (`{ask:LABEL=default}` needs none); a missing one is an error naming it.
 - `session continue-as <name> [--pane P] [--target] [--window W]` — (needs a license) end the agent in the pane and type the named
   agent command resuming its conversation (`--resume ID`, Codex `resume ID`): the same conversation on another
   subscription. Refused for a command starting a different agent or an empty conversation; read back
@@ -707,16 +722,26 @@ error keeps those names for compatibility.
 - `agent proxy [URL|direct] [--agent NAME] [--clear]` — the proxy agents started from agent commands connect through
   (`HTTPS_PROXY`/`HTTP_PROXY` on their line): the global one, or one command's own with `--agent` (`direct` = none);
   omit the URL to read it. `result.text` is the proxy in force or `none`.
-- `agent auto-continue [on|off]` — (needs a license) whether an agent whose turn ended on an API error (the Claude hook's `session
-  stopped REASON`) continues by itself once that clears: a limit's reset, a pause after an overloaded API, the network
-  coming back; it types `continue`. Read back `result.autoContinue` and the session node's `stopped` (`reason`,
-  `pane`, `waiting`: limit|retry|network|never, `retryAt` Unix seconds, `attempts`).
+- `agent auto-continue [on|off] [--attempts N]` — (needs a license) whether an agent whose turn ended on an API error (the
+  Claude hook's `session stopped REASON`) continues by itself once that clears: a limit's reset, a pause after an
+  overloaded API, the network coming back, or, for a refused request (`authentication_failed`, as a VPN switch brings),
+  the next network change or a pause doubling from a minute. When due it first checks the API takes this network (a
+  keyless request, through the agent's proxy) and, while not, checks again (1, 2, 4, 8, then every 15 minutes, or on a
+  network change) without spending a try; then it types `continue`. `--attempts` (1-50, default 10) is how many it
+  tries without a finished turn. Read back `result.autoContinue`, `result.autoContinueAttempts`, and the session node's
+  `stopped` (`reason`, `pane`, `waiting`: limit|retry|network|access|agent|never, `access`: refused|unreachable, `retryAt`
+  Unix seconds, `attempts`). An agent that shows it continues by itself (a newer Claude Code at a spent limit:
+  "continuing automatically at …") is left to, and VolkTerm steps in only once that is gone and the agent still waits.
+  When the stop ended subagents, the line says so: "continue. The limit stopped 3 subagents: restart the ones still needed."
 - `notifications [read|clear]` — every notification raised this run, newest first (the sidebar footer's bell),
   shown by macOS or not: `result.notifications` (`unread`, `entries[]` with `id`, `at`, `title`, `body`,
   `sessionID`, `read`). An agent finishing its turn, stopping on an API error, and a subscription window at 80% or
   used up each post one (Settings ▸ Notifications).
-- `session conversation [--limit N] [--pane left|right] [--target]` — the Claude conversation in the session's focused pane (or `--pane`) as
-  messages (`result.conversation`: role user|assistant|tool, text, time), read from Claude's transcript.
+- `session conversation [--limit N] [--pane left|right] [--target]` — the Claude Code or Codex conversation in the session's focused pane (or `--pane`)
+  as messages (`result.conversation`: role user|assistant|tool, text, time), read from Claude's transcript or Codex's
+  rollout, and, for Claude, what it still has running beside its turn (`result.tasks`: id, kind shell|agent, label, background, since): subagents
+  and background shells, which can keep working after the turn looks done. Every session's count of them is the
+  tree node's `running` (omitted for none), which the tile header (a gear and the count) and the sidebar show.
 - `phone status` — whether the iPhone app may come in peer-to-peer, this Mac's endpoint id and relay, and every
   paired phone with its connection (`result.phone`: `p2p`, `id`, `relay`, `homeRelay`, `devices[{id, path}]`).
 - `session pin [on|off|toggle] [--target] [--window W]` — show the session's live terminal in its window's
@@ -731,15 +756,28 @@ error keeps those names for compatibility.
   the session's working directories (symlinks and `..` resolved; never the home directory or above); any other
   path is refused, and writes stop at 256 KB. The iPhone app opens those files this way, so a question list you `edit`
   can be answered from the phone.
+- `file attach NAME < FILE` — (CLI only) save stdin under `attachments/` beside the socket and print its path
+  (`--json`: `result.path`); 20 MB at most, removed after a week. The phone apps attach photos and files this way.
 - `file ask PATH --question Q [--excerpt TEXT [--lines N[-M]]] [--target]` — (needs a license) a read-only side agent about the file,
-  in the session's split right (a new tile when the split is taken), on the session agent's own agent command; it
-  reads the question from a file that also names the session's Claude transcript. ⇧⌘A on its answer quotes it
-  into the session's agent.
+  in the session's split right (a new tile when the split is taken), on the session agent's own agent command and
+  model unless `agent file-questions` names others; it reads the question from a file that also names the session's
+  conversation whole (Claude Code's transcript, Codex's rollout, else the terminal's text). ⇧⌘A on its answer
+  quotes it into the session's agent.
+- `agent file-questions [--agent NAME|session] [--model MODEL|session]` — who answers a question about a file:
+  `session` (the default) is the asking session's agent command and, while the same agent answers, its model;
+  read back `result.fileQuestions` (`agent`, `model`, omitted for the session's).
 - `plugin list | reload | enable ID | disable ID | run ID ITEM [--target]` — the plugins (folders with a
   `plugin.json` in `<config>/plugins`, plus the bundled `limits`): `list` gives `result.plugins` (`id`, `name`,
-  `version`, `directory`, `bundled`, `enabled`, `menuItems`, `titlebarButtons`, `sidebarWidget`) and
+  `version`, `directory`, `bundled`, `enabled`, `menuItems`, `titlebarButtons`, `sidebarWidget`, `agents`) and
   `result.pluginProblems`; `enable`/`disable` read back as `enabled`; `run` runs a menu item's or button's command
-  for the target session.
+  for the target session. A plugin's `agents` (`id`, `name`, `programs`, `resume` with `{id}`, `resumeFirst`,
+  `readOnly`, `model` with `{model}`, `droppedOptions`, `booleanOptions`, `probe`, `transcript`, `conversation`)
+  teaches VolkTerm an agent it does not know: restore starts it again with its kept options (resuming its
+  conversation needs its id, read for Claude Code and Codex only so far), a file question runs it read-only;
+  `claude` and `codex` cannot be taken. `probe` is an https address its API answers keyless, asked before
+  auto-continue. `transcript` and `conversation` are shell lines run in the session's directory with
+  `$VOLKTERM_AGENT_PID`: one prints the conversation's file (a file question's context), the other the phone
+  chat's messages as JSON lines `{"role": "user|assistant|tool", "text", "time"}`, given `$VOLKTERM_TRANSCRIPT`.
 - `phone disconnect ID [--revoke]` — close a paired phone's connections (ID is a unique prefix); `--revoke`
   also unpairs it. Pairing itself is GUI-only: VolkTerm ▸ Pair Phone… shows a QR code.
 - `agent update [--agent codex]` — update Claude Code (or Codex) in the background, the way it was installed; the
@@ -1349,7 +1387,7 @@ for that slot. The raw open reply echoes `result.pane` for pane placement. The l
 are retained across both styles, including after owner closure; pending requests are never evicted.
 App shutdown can interrupt polling. Ask emits no events.
 
-See the [ask command reference](https://agterm.com/commands#ask) for appearance, input priority,
+See the [ask command reference](https://github.com/baffolobill/volkterm/blob/main/docs/commands.md) for appearance, input priority,
 hiding under covers, and cancellation rules.
 
 ## quick
@@ -1656,8 +1694,7 @@ ghostty config and the place to put volkterm overrides/customizations. It is ALW
 its terminal config in order, each source overriding the one before: ghostty's bundled defaults, then
 your global `~/.config/ghostty/config` (OFF by default — opt in with Settings ▸ General ▸ Use my global
 Ghostty config), then `<config dir>/ghostty.conf`, then the values volkterm emits from Settings, which
-load last and win over matching values in `ghostty.conf`. The current list of those keys is at
-https://agterm.com/docs#ghostty. The scoped file is
+load last and win over matching values in `ghostty.conf`; the Settings window shows which keys those are. The scoped file is
 volkterm-only; the standalone Ghostty.app never reads it. volkterm is self-contained by default, so a config
 written for Ghostty.app does not silently change volkterm — put volkterm overrides in `ghostty.conf` (e.g.
 `macos-option-as-alt = true`); the full reference is at https://ghostty.org/docs/config. Editing it from
