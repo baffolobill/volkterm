@@ -108,8 +108,8 @@ new-workspace wizard offers only as many terminals as can still open.
 **Can I start a message on the phone and finish it on the Mac?**
 Yes. What you type in a chat is kept with the session on the Mac as you type. The tile on the Mac then shows a pencil
 in its header; Insert types the text into the agent's prompt without sending it, so you finish it there. Under
-Claude Code it goes in by itself once you leave the chat on the phone, or stop typing for 15 seconds, while Claude
-waits with an empty prompt and asks nothing. It works
+Claude Code it goes in by itself once you close the chat or the app on the phone, while Claude waits with an empty
+prompt and asks nothing; a phone that only lost its network keeps its text. It works
 the other way between phones and iPads too, and a message sent from anywhere clears the draft everywhere. Text typed
 straight into the Mac's terminal is not seen by the phone until it is sent.
 

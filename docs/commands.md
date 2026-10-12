@@ -418,7 +418,7 @@ buys nothing. A caller with no tree uses `version`.
   code highlighted, anything else in Quick Look); read back as `panels.previewPath`. Useful to show a plan or
   README you just wrote to the user.
 - `edit PATH[:LINE] | --close [--window W]` — open a text file in the window's editor popup, scrolled to LINE:
-  plain text, ⌘S saves, ⌘↩ saves and closes, Esc closes; a binary or missing file is refused. Read back as
+  plain text, ⌘S saves, ⌘↩ saves and closes, Esc or ⌘W closes; a binary or missing file is refused. Read back as
   `panels.editorPath`/`editorLine`, never persisted. Use it after writing a spec with open questions so the user
   answers in place; the user can also ⌘-click any file path a terminal prints.
 - From a session's shell, `preview` and `edit` open in that session's window only while its workspace is on
@@ -535,10 +535,10 @@ error keeps those names for compatibility.
 - `session send <text> [--pane left|right] [--target] [--window W]` — send a message to the pane's agent: the
   text and its own Return as one step (several lines go as one paste and stay lines), queued per pane across callers, refused (`the agent is asking a question`)
   while a question with options is on screen. Prefer it over `session type` + `\r` for messages.
-- `session draft (<text> [--from NAME] | --clear) [--target] [--window W]` — leave an unsent message with the
-  session for another device to finish (read back as the node's `draft`: `text`, `from`, `updatedAt`); the tile
-  header offers Insert and Discard, and `session send` clears it. Under Claude Code it inserts itself once the phone
-  left the chat or the draft is 15 s old, while Claude waits with an empty prompt and asks nothing.
+- `session draft (<text> [--from NAME] [--away] | --clear) [--target] [--window W]` — leave an unsent message with the
+  session for another device to finish (read back as the node's `draft`: `text`, `from`, `updatedAt`, `away`); the
+  tile header offers Insert and Discard, and `session send` clears it. `--away` says the device left the chat with
+  it: under Claude Code it then inserts itself once Claude waits with an empty prompt and asks nothing.
 - `session type <text> [--stdin] [--select] [--pane left|right|scratch] [--target] [--window W]` — inject text
   as real keystrokes (printable runs plus Return for each newline; no bracketed-paste markers).
   `--stdin` reads the text from stdin instead of the argument. Any session is typable without `--select`,
@@ -742,6 +742,8 @@ error keeps those names for compatibility.
   rollout, and, for Claude, what it still has running beside its turn (`result.tasks`: id, kind shell|agent, label, background, since): subagents
   and background shells, which can keep working after the turn looks done. Every session's count of them is the
   tree node's `running` (omitted for none), which the tile header (a gear and the count) and the sidebar show.
+  The node's `agentVersion` (`agent`, `version`, `minimum`, `supported`) is the version its Claude Code or Codex
+  writes down; one older than `version`'s `agents` puts a warning in the tile header.
 - `phone status` — whether the iPhone app may come in peer-to-peer, this Mac's endpoint id and relay, and every
   paired phone with its connection (`result.phone`: `p2p`, `id`, `relay`, `homeRelay`, `devices[{id, path}]`).
 - `session pin [on|off|toggle] [--target] [--window W]` — show the session's live terminal in its window's
@@ -2008,6 +2010,8 @@ window need be open, so it works as a preflight from a keymap-launched script. R
 - `version` — the app's version, the number a cookbook recipe's minimum is compared against.
 - `commit` — the build's git commit, omitted when the build recorded none. Diagnostics only; never part
   of a version comparison.
+- `agents` — the Claude Code and Codex versions it supports (`agent`, `name`, `minimum`), printed as a
+  `supports …` line.
 
 Human output is `version` alone, or `version (commit)`, followed by a `client:` line naming the resolved
 path of the `volktermctl` that ran — a diagnostic for a stale CLI earlier on `PATH` than the app's bundled
