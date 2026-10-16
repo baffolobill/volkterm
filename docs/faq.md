@@ -95,13 +95,14 @@ command line stay English.
 **What does a license add?**
 VolkTerm works without one. A license adds what saves time when several agents and subscriptions are at work:
 more than 6 sessions open at once, agents that continue by themselves after a lost connection or a spent limit,
-Continue as, side agents that answer questions about a file, and every session on the phone instead of the top one and
-those the phone opened. Without a license those items stay in the menus and say so when used. Enter a key in
-VolkTerm ▸ License….
+Continue as, side agents that answer questions about a file, stage boards, and every session on the phone instead of
+the top one and those the phone opened. Without a license those items stay in the menus and say so when used. Enter a
+key in VolkTerm ▸ License….
 
 **What happens to my sessions when a license ends?**
 Nothing closes. Sessions over 6 stay open and keep running; a new one opens once you are under 6 again. The
-new-workspace wizard offers only as many terminals as can still open.
+new-workspace wizard offers only as many terminals as can still open. A stage board keeps its columns and every task its
+stage, but all its sessions show as tiles until a license is back.
 
 ## Phone app
 

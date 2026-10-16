@@ -412,8 +412,29 @@ buys nothing. A caller with no tree uses `version`.
   `--to` tile in the same workspace (default `right`) or swap the two, as dragging a tile header does. A workspace's
   sessions are listed in screen order (left to right, top to bottom); `session move` within a workspace moves tiles.
 
+- `workspace board [on|off] [--workflow NAME] [--target] [--window W]` — make a workspace a stage board: its
+  sessions are tasks in the columns of a workflow from Settings ▸ General ▸ Board ▸ Workflows (Development and Short
+  ship; `--workflow` takes an id or name, default the board's own or the first). Only sessions in a column marked
+  tiles stay tiles; the others keep running off screen until opened. Read back as the workspace node's `board`
+  (`workflow`, `stages[{id, title, tiles}]`, `peek`: the sessions open as temporary tiles). Off keeps no stages.
+  Needs a VolkTerm license; without one a board is kept but every session is a tile.
+- `session stage STAGE [--target] [--window W]` — move the session's task to a column of its workspace's board, by
+  stage id or title; read back as the node's `stage` (an id) and `parked` (in a column off the tiles). A selected
+  session taken off the tiles stays on screen as a temporary tile. Move a task when its state changes: a pull
+  request opened puts it in review, a merge in release.
+- `session peek [on|off] [--target] [--window W]` — open a parked session as its workspace's temporary tile, first or
+  last by setting, or close that tile; selecting a parked session opens it too. It splits, resizes and closes like
+  a tile, and what it splits off takes its stage.
+- `board [show|hide|toggle] [--window W]` — open or close the board of the workspace on screen, in place of the
+  tiles beside the selected task or over them (Settings ▸ General ▸ Board); read back as `panels.boardShown`.
+  ⌃⌘B and View ▸ Board do the same.
+- Moving a session to another workspace (`session move`, the sidebar, `window take`) keeps its column where the new
+  board has one of the same id or title, else puts it in the first column, and drops it without a board; follow
+  with `session stage` to choose.
+
 - `filetree [on|off|toggle|refresh] [--window W]` — the window's file tree beside the tiles, rooted at the
-  focused tile's directory; read back as the tree's `panels.fileTreeVisible`.
+  focused tile's directory, dot-files shown and only `.git` and `.DS_Store` left out; read back as the tree's
+  `panels.fileTreeVisible`.
 - `preview PATH | --close [--window W]` — show a file in the live-reloading preview column (Markdown rendered,
   code highlighted, anything else in Quick Look); read back as `panels.previewPath`. Useful to show a plan or
   README you just wrote to the user.
