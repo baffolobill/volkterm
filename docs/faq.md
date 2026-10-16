@@ -96,7 +96,8 @@ command line stay English.
 VolkTerm works without one. A license adds what saves time when several agents and subscriptions are at work:
 more than 6 sessions open at once, agents that continue by themselves after a lost connection or a spent limit,
 Continue as, side agents that answer questions about a file, stage boards, an agent resumed in a session reopened from
-the history, and every session on the phone instead of the top one and those the phone opened. Without a license those
+the history, an agent's context kept small (`/compact` and `/handoff` on their own), and every session on the phone
+instead of the top one and those the phone opened. Without a license those
 items stay in the menus and say so when used. Enter a key in VolkTerm ▸ License….
 
 **What happens to my sessions when a license ends?**
@@ -109,8 +110,8 @@ stage, but all its sessions show as tiles until a license is back.
 **Can I start a message on the phone and finish it on the Mac?**
 Yes. What you type in a chat is kept with the session on the Mac as you type. The tile on the Mac then shows a pencil
 in its header; Insert types the text into the agent's prompt without sending it, so you finish it there. Under
-Claude Code it goes in by itself once you close the chat or the app on the phone, while Claude waits with an empty
-prompt and asks nothing; a phone that only lost its network keeps its text. It works
+Claude Code it goes in by itself once you leave the chat on the phone, while Claude waits with an empty prompt and asks
+nothing; a phone that lost its network, was locked or put away keeps its text in the field. It works
 the other way between phones and iPads too, and a message sent from anywhere clears the draft everywhere. Text typed
 straight into the Mac's terminal is not seen by the phone until it is sent.
 

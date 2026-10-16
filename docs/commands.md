@@ -754,6 +754,18 @@ error keeps those names for compatibility.
   Unix seconds, `attempts`). An agent that shows it continues by itself (a newer Claude Code at a spent limit:
   "continuing automatically at …") is left to, and VolkTerm steps in only once that is gone and the agent still waits.
   When the stop ended subagents, the line says so: "continue. The limit stopped 3 subagents: restart the ones still needed."
+- `agent context [--idle MIN|off|inherit] [--min-context PCT|inherit] [--on-stage on|off|inherit] [--handoff HOURS|off|inherit]
+  [--focus TEXT|inherit] [--target S | --workspace W | --group G]` — (needs a license to set) how VolkTerm keeps a
+  Claude Code session's context small, set on a session, a workspace or a group; a level inherits what it leaves unset,
+  and what no level sets is off. While Claude Code waits with an empty prompt and asks nothing, VolkTerm types
+  `/compact FOCUS` after `--idle` minutes once the context is `--min-context` percent full (from its status line),
+  `/compact FOCUS. The task now moves to COLUMN` when the task changes board column (`--on-stage`), and `/handoff` after
+  `--handoff` hours; each once per pause. Without options it reads: `result.agentContext` (`own`, and for a session
+  `effective` and `handoff`); the tree's sessions, workspaces and groups carry their own as `agentContext`.
+- `agent compact [--focus TEXT] [--target]` / `agent handoff [--all | --target]` — type `/compact` or `/handoff` into the
+  session's Claude Code now, or `/handoff` into every one waiting; refused while it works, asks or has text in its
+  prompt. The handoff's document reads back as the session node's `handoff`.
+- `agent resume [--target]` — `/clear`, then "Continue from the handoff in PATH": the morning after a handoff.
 - `notifications [read|clear]` — every notification raised this run, newest first (the sidebar footer's bell),
   shown by macOS or not: `result.notifications` (`unread`, `entries[]` with `id`, `at`, `title`, `body`,
   `sessionID`, `read`). An agent finishing its turn, stopping on an API error, and a subscription window at 80% or
