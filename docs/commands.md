@@ -1136,6 +1136,22 @@ Two simpler routes fail and are why the overlay is needed: emitting graphics esc
 tool stdout (the harness escapes the control bytes) and running an image viewer in the agent's tool
 shell (no controlling terminal — `/dev/tty` errors).
 
+## history
+
+Closed sessions and workspaces, kept 90 days (at most 1000), newest first: the History menu, ⌘Y's palette and these.
+An entry keeps where it was (group and workspace) and, when Claude Code or Codex ran in it, the line that resumes its
+conversation.
+
+- `history [list] [--search WORDS] [--limit N]` — the entries, every word of `--search` found in any order across
+  names, workspaces, groups, folders and agents: `result.history[{id, kind, title, workspace, group, cwd, sessions,
+  agent, closedAt}]`, `kind` `session` or `workspace`, `sessions` the names a closed workspace held, `agent` `claude`
+  or `codex` when a reopen resumes it.
+- `history reopen ID [--window W]` — reopen an entry (id or unique prefix) where it was: into its workspace, rebuilt
+  with its color, icon and board when gone, and into its group, rebuilt too; the entry leaves the history. With a
+  VolkTerm license the agent's conversation is resumed in the pane once its shell is at the prompt. Returns the
+  window's id. Use it when asked to bring back a session closed earlier: `history --search` finds its id.
+- `history remove ID` / `history clear` — forget one entry, or all of them.
+
 ## window
 
 - `window new [name] [--minimized]` — create and open a window; returns its id. It replies only once
@@ -1666,7 +1682,7 @@ Built-in action names for `map` include: `new_window`, `new_workspace`, `new_ses
 `open_directory`, `rename_session`, `duplicate_session`, `close_session`, `reopen_recent`, `undo_close`, `clear_status`, `increase_font_size`,
 `decrease_font_size`, `reset_font_size`, `toggle_split`, `toggle_horizontal_split`, `toggle_scratch`, `toggle_sidebar`,
 `focus_workspace`, `toggle_workspace_filter`, `quick_terminal`,
-`session_palette`, `command_palette`, `custom_command_palette`, `dashboard`, and the navigation actions (`previous_session`, `next_session`,
+`session_palette`, `command_palette`, `custom_command_palette`, `dashboard`, `toggle_board`, `show_history`, and the navigation actions (`previous_session`, `next_session`,
 `first_session`, `last_session`, `previous_attention_session`, `next_attention_session`,
 `previous_window`, `next_window`, `focus_left_pane`, `focus_right_pane`, `select_theme`). Editing the keymap from a terminal: open
 `keymap.conf` in `$EDITOR`, then `volktermctl keymap reload`.
