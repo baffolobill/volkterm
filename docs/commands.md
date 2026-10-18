@@ -1521,7 +1521,7 @@ moves the selection. Returns the resulting layout in `result.text`; read back as
 collapse state with the ordinary tree, ignores the focus filter, and keeps `workspace go` unavailable.
 
 `volktermctl sidebar board-layout [list|stages|toggle]` — pick how the ordinary tree lists a board workspace's
-sessions: `list` as they are, a waiting one named after its column; `stages` under a row per column, those off the
+sessions: `list` as they are, a waiting one named after its column; `stages` under a row per column (an empty one too), those off the
 tiles folded until opened (`workspace expand --stage`, or by selecting one of their sessions). `toggle` is the
 default. APP-WIDE, the same setting as Settings ▸ General ▸ Board ▸ Sessions in the sidebar; returns the layout in
 `result.text`, read back as the tree's `sidebarBoardLayout`.
