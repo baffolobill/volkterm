@@ -755,13 +755,23 @@ error keeps those names for compatibility.
   "continuing automatically at …") is left to, and VolkTerm steps in only once that is gone and the agent still waits.
   When the stop ended subagents, the line says so: "continue. The limit stopped 3 subagents: restart the ones still needed."
 - `agent context [--idle MIN|off|inherit] [--min-context PCT|inherit] [--on-stage on|off|inherit] [--handoff HOURS|off|inherit]
-  [--focus TEXT|inherit] [--target S | --workspace W | --group G]` — (needs a license to set) how VolkTerm keeps a
+  [--focus TEXT|inherit] [--on-limit NAME|off|inherit] [--target S | --workspace W | --group G]` — (needs a license to set) how VolkTerm keeps a
   Claude Code session's context small, set on a session, a workspace or a group; a level inherits what it leaves unset,
   and what no level sets is off. While Claude Code waits with an empty prompt and asks nothing, VolkTerm types
-  `/compact FOCUS` after `--idle` minutes once the context is `--min-context` percent full (from its status line),
+  `/compact FOCUS` after `--idle` minutes once the context is `--min-context` percent full (from its status line), in
+  the last 8 minutes before its prompt cache goes cold and never once it has (without cache data, at the minutes),
+  ahead of Claude Code's own idle compaction,
   `/compact FOCUS. The task now moves to COLUMN` when the task changes board column (`--on-stage`), and `/handoff` after
-  `--handoff` hours; each once per pause. Without options it reads: `result.agentContext` (`own`, and for a session
+  `--handoff` hours; each once per pause. `--on-limit` names an agent command (`agent list`): an agent stopped at the
+  usage limit (`rate_limit`) continues its conversation under it at once, typed `continue`, instead of waiting for the
+  reset, and a limit on that one goes back to the command it left (the session node's `limitReturn`, else the bare
+  `claude` one); it waits when the other's limit is spent too, or it stopped at its limit within the last hour
+  (`off` stores `""`, wait).
+  Without options it reads: `result.agentContext` (`own`, and for a session
   `effective` and `handoff`); the tree's sessions, workspaces and groups carry their own as `agentContext`.
+- The session node's `agent` carries `cache` from Claude Code's status line (v2.1.251 or later): `warm`, `ttl` (`5m`, or
+  `1h` on a subscription within its plan), `expiresAt` (Unix seconds) and `recacheTokens`, what the next message
+  re-reads at the full price once it is cold. The tile header shows the minutes left, or cold.
 - `agent compact [--focus TEXT] [--target]` / `agent handoff [--all | --target]` — type `/compact` or `/handoff` into the
   session's Claude Code now, or `/handoff` into every one waiting; refused while it works, asks or has text in its
   prompt. The handoff's document reads back as the session node's `handoff`.
@@ -778,7 +788,10 @@ error keeps those names for compatibility.
   The node's `agentVersion` (`agent`, `version`, `minimum`, `supported`) is the version its Claude Code or Codex
   writes down; one older than `version`'s `agents` puts a warning in the tile header.
 - `phone status` — whether the iPhone app may come in peer-to-peer, this Mac's endpoint id and relay, and every
-  paired phone with its connection (`result.phone`: `p2p`, `id`, `relay`, `homeRelay`, `devices[{id, path}]`).
+  paired phone with its connection (`result.phone`: `p2p`, `id`, `relay`, `homeRelay`, `devices[{id, path, name, platform,
+  lastSeen, attestation}]`). A phone's `id` is the hash of the hardware key it signs every request with; `attestation`
+  lists what an Android phone's key attestation showed wrong at pairing (an unlocked bootloader, an app signed by
+  another key). A phone not seen for 30 days is unpaired.
 - `session pin [on|off|toggle] [--target] [--window W]` — show the session's live terminal in its window's
   floating pin card, which stays where it was put while you switch workspaces (typing and scrolling work; its
   tile shows a placeholder meanwhile). One per window; read back as the session node's `pinned`. The card's
@@ -814,7 +827,8 @@ error keeps those names for compatibility.
   `$VOLKTERM_AGENT_PID`: one prints the conversation's file (a file question's context), the other the phone
   chat's messages as JSON lines `{"role": "user|assistant|tool", "text", "time"}`, given `$VOLKTERM_TRANSCRIPT`.
 - `phone disconnect ID [--revoke]` — close a paired phone's connections (ID is a unique prefix); `--revoke`
-  also unpairs it. Pairing itself is GUI-only: VolkTerm ▸ Pair Phone… shows a QR code.
+  also unpairs it. Pairing itself is GUI-only: VolkTerm ▸ Pair Phone… shows a QR code that changes every 30 seconds,
+  and the phone is paired once allowed there, with the six digits it shows.
 - `agent update [--agent codex]` — update Claude Code (or Codex) in the background, the way it was installed; the
   app then offers to restart its sessions.
 - `agent restart [--all] [--agent codex]` — restart running Claude (or Codex) sessions, resuming each conversation in its tile (idle ones
@@ -1146,7 +1160,7 @@ with `sips`, and gives the graphics command an explicit cell box. If the termina
 geometry query it falls back to drawing at native pixel size in the top-left corner.
 Two simpler routes fail and are why the overlay is needed: emitting graphics escapes to the agent's own
 tool stdout (the harness escapes the control bytes) and running an image viewer in the agent's tool
-shell (no controlling terminal — `/dev/tty` errors).
+shell (no controlling terminal — `/dev/tty` errors). See examples.md for usage.
 
 ## history
 

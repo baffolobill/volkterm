@@ -120,6 +120,14 @@ Yes. Scan each Mac's code (VolkTerm ▸ Pair Phone…); they all stay connected 
 list picks which one you see. Notifications come from every connected Mac, named after it. In Settings each Mac can
 be disconnected, renamed or removed. A Mac with several windows shows its sessions under each window.
 
+**What keeps someone else's phone off my Mac?**
+Pairing is done at the Mac: the QR code changes every 30 seconds, and a phone is paired only once you allow it there,
+with the six digits your phone shows. Every request is then signed with a key made for that Mac in the phone's secure
+hardware (the iPhone's Secure Enclave, Android's Keystore), which nothing can read; on Android it also works only for
+half an hour after the phone was unlocked, and the Mac checks the key's attestation at pairing: an unlocked bootloader
+or an app signed by someone else is shown before you allow it. The phone app locks with Face ID or a fingerprint, and a
+phone not seen for 30 days is unpaired. `volktermctl phone status` lists the paired phones.
+
 **Can I see my subscription limits and notifications on the phone?**
 Yes. When a subscription's 5-hour or weekly window passes 80%, a line above the session list says so; tap it, or the
 gauge at the top, for every subscription's usage, when each window resets and the sessions running as it. The bell lists what the Mac notified, and a new notification
