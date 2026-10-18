@@ -267,7 +267,7 @@ can restore it, e.g. a tmux-style zoom that hides the sidebar and must re-show i
 visible before), `sidebarMode` (`tree` or `flagged` — the sidebar view mode, the read side of
 `sidebar mode`), `sidebarFlaggedLayout` (`flat` or `tree` — how the flagged view is arranged, the read side
 of `sidebar flagged-layout`; app-wide, so every window reports the same value, under the ordinary tree
-too), `sidebarWidth` (the sidebar divider position in points, the read side of
+too), `sidebarBoardLayout` (`list` or `stages`, the read side of `sidebar board-layout`; app-wide too), `sidebarWidth` (the sidebar divider position in points, the read side of
 `sidebar width`, reported here and nowhere else), `workspaceFilter` (whether the window's workspace focus filter is currently APPLIED —
 the flag half of the focus set, whose member half is each workspace node's `focused`; the read side of
 `workspace filter`, so a script can record the filter state, restore it, or make the toggle idempotent),
@@ -385,10 +385,11 @@ buys nothing. A caller with no tree uses `version`.
   (hide its sessions); returns the workspace id. The per-workspace counterpart of `sidebar collapse`
   (which collapses ALL but the active workspace) — this targets exactly the addressed workspace and does
   not depend on which one is active. Idempotent. Persisted. Read back from the tree workspace node's
-  `collapsed` flag.
+  `collapsed` flag. `--stage S` folds that column of its board under its row instead (id or title; an error
+  without a board or such a column), returning the column's id in `result.text`; read back as `board.folded`.
 - `workspace expand [--target] [--window W]` — expand ONE workspace's subtree (show its sessions);
   returns the workspace id. The inverse of `workspace collapse`, and the per-workspace counterpart of
-  `sidebar expand`. Idempotent. To TOGGLE a workspace, read its `collapsed` flag off `tree` first, then
+  `sidebar expand`; `--stage S` opens that column of its board. Idempotent. To TOGGLE a workspace, read its `collapsed` flag off `tree` first, then
   call `expand` or `collapse`.
 - `workspace color <red|orange|yellow|green|teal|blue|purple|pink|gray|#rrggbb|clear> [--target] [--window W]`
   — tint the workspace's sidebar icon; returns the workspace id. Persisted; read back as the workspace
@@ -425,7 +426,8 @@ buys nothing. A caller with no tree uses `version`.
   sessions are tasks in the columns of a workflow from Settings ▸ General ▸ Board ▸ Workflows (Development and Short
   ship; `--workflow` takes an id or name, default the board's own or the first). Only sessions in a column marked
   tiles stay tiles; the others keep running off screen until opened. Read back as the workspace node's `board`
-  (`workflow`, `stages[{id, title, tiles}]`, `peek`: the sessions open as temporary tiles). Off keeps no stages.
+  (`workflow`, `stages[{id, title, tiles}]`, `peek`: the sessions open as temporary tiles, `folded`: the columns
+  folded under its sidebar row). Off keeps no stages.
   Needs a VolkTerm license; without one a board is kept but every session is a tile.
 - `session stage STAGE [--target] [--window W]` — move the session's task to a column of its workspace's board, by
   stage id or title; read back as the node's `stage` (an id) and `parked` (in a column off the tiles). A selected
@@ -434,6 +436,8 @@ buys nothing. A caller with no tree uses `version`.
 - `session peek [on|off] [--target] [--window W]` — open a parked session as its workspace's temporary tile, first or
   last by setting, or close that tile; selecting a parked session opens it too. It splits, resizes and closes like
   a tile, and what it splits off takes its stage.
+- A task's place within its column is its place among the workspace's sessions: `session move --after/--before S`
+  reorders it, as dragging a card onto another card does on the board.
 - `board [show|hide|toggle] [--window W]` — open or close the board of the workspace on screen, in place of the
   tiles beside the selected task or over them (Settings ▸ General ▸ Board); read back as `panels.boardShown`.
   ⌃⌘B and View ▸ Board do the same.
@@ -1515,6 +1519,12 @@ needed, and every window's flagged view follows at once. Setting it never enters
 moves the selection. Returns the resulting layout in `result.text`; read back as the tree's top-level
 `sidebarFlaggedLayout`, reported under the ordinary tree too. The tree layout shares each workspace's
 collapse state with the ordinary tree, ignores the focus filter, and keeps `workspace go` unavailable.
+
+`volktermctl sidebar board-layout [list|stages|toggle]` — pick how the ordinary tree lists a board workspace's
+sessions: `list` as they are, a waiting one named after its column; `stages` under a row per column, those off the
+tiles folded until opened (`workspace expand --stage`, or by selecting one of their sessions). `toggle` is the
+default. APP-WIDE, the same setting as Settings ▸ General ▸ Board ▸ Sessions in the sidebar; returns the layout in
+`result.text`, read back as the tree's `sidebarBoardLayout`.
 
 `volktermctl sidebar expand [--window W]` — expand every workspace row in a window's sidebar tree.
 Defaults to the frontmost window; `--window` (id / prefix / `active`) targets any OPEN window, so a
