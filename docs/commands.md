@@ -412,6 +412,15 @@ buys nothing. A caller with no tree uses `version`.
   `--to` tile in the same workspace (default `right`) or swap the two, as dragging a tile header does. A workspace's
   sessions are listed in screen order (left to right, top to bottom); `session move` within a workspace moves tiles.
 
+- `workspace arrange tiles|strip|default [--target] [--window W]` — lay a workspace out as tiles sharing the window,
+  or as a strip of columns that keep their widths and scroll (a session leaving never widens the others); `default`
+  follows Settings ▸ General ▸ Layout. Read back as the workspace node's `arrangement` (in force) and
+  `arrangementOwn` (omitted while it follows the default).
+- `session width quarter|third|half|two-thirds|full|next|auto|SHARE [--target] [--window W]` — a session's column
+  width in a strip, as a share of the visible width (0.15 to 1; `next` steps up through the presets; `auto` clears
+  it). Without one, a column takes the narrowest preset holding a 72-column line in its window (a quarter of a 27"
+  display, half of a 14" laptop's); a new session in a strip takes the selected one's. Read back as the node's `stripWidth`. Selecting a session out of view
+  scrolls the strip to it.
 - `workspace board [on|off] [--workflow NAME] [--target] [--window W]` — make a workspace a stage board: its
   sessions are tasks in the columns of a workflow from Settings ▸ General ▸ Board ▸ Workflows (Development and Short
   ship; `--workflow` takes an id or name, default the board's own or the first). Only sessions in a column marked
@@ -1708,7 +1717,8 @@ Built-in action names for `map` include: `new_window`, `new_workspace`, `new_ses
 `open_directory`, `rename_session`, `duplicate_session`, `close_session`, `reopen_recent`, `undo_close`, `clear_status`, `increase_font_size`,
 `decrease_font_size`, `reset_font_size`, `toggle_split`, `toggle_horizontal_split`, `toggle_scratch`, `toggle_sidebar`,
 `focus_workspace`, `toggle_workspace_filter`, `quick_terminal`,
-`session_palette`, `command_palette`, `custom_command_palette`, `dashboard`, `toggle_board`, `show_history`, and the navigation actions (`previous_session`, `next_session`,
+`session_palette`, `command_palette`, `custom_command_palette`, `dashboard`, `toggle_board`, `show_history`, `toggle_strip`,
+`cycle_column_width`, and the navigation actions (`previous_session`, `next_session`,
 `first_session`, `last_session`, `previous_attention_session`, `next_attention_session`,
 `previous_window`, `next_window`, `focus_left_pane`, `focus_right_pane`, `select_theme`). Editing the keymap from a terminal: open
 `keymap.conf` in `$EDITOR`, then `volktermctl keymap reload`.
